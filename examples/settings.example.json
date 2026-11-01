@@ -1,0 +1,59 @@
+{
+  "_comment": "Example module settings (stored as an encrypted JSON envelope at runtime). This file shows the logical shape only.",
+  "version": 1,
+  "payload": {
+    "theme": "Cyberpunk",
+    "opacity": 0.95,
+    "advancedMode": false,
+    "unlockAllProtected": false,
+    "captureEnabled": true,
+    "diskPersistence": false,
+    "guiFps": 60,
+    "toggleKey": 260,
+    "history": {
+      "maxEntries": 50000,
+      "maxBytes": 209715200
+    },
+    "sqlite": {
+      "maxPacketRows": 500000
+    },
+    "matchMode": "ADVANCED",
+    "delay": {
+      "enabled": false,
+      "globalCeilingMillis": 10000,
+      "profiles": [
+        {
+          "name": "Outbound jitter",
+          "enabled": false,
+          "mode": "RANDOM",
+          "minMillis": 20,
+          "maxMillis": 120,
+          "appliesToInbound": false,
+          "appliesToOutbound": true,
+          "maxDelayMillisCap": 2000
+        }
+      ]
+    },
+    "netsim": {
+      "enabled": false,
+      "inboundLossProbability": 0.0,
+      "outboundLossProbability": 0.0,
+      "inboundBytesPerSecond": 0,
+      "outboundBytesPerSecond": 0,
+      "maxThrottleDelayMillis": 2000
+    },
+    "anomaly": {
+      "enabled": true,
+      "detectors": {
+        "oversized-packet": { "enabled": true, "sensitivity": 0.5 },
+        "traffic-spike":    { "enabled": true, "sensitivity": 0.5 },
+        "packet-flood":     { "enabled": true, "sensitivity": 0.5 },
+        "malformed-packet": { "enabled": true, "sensitivity": 0.5 }
+      }
+    },
+    "protectedMarkers": [
+      "KeepAlive", "Ping", "Pong", "Hello", "Key", "LoginAcknowledged",
+      "LoginFinished", "SetCompression", "FinishConfiguration", "Disconnect"
+    ]
+  }
+}

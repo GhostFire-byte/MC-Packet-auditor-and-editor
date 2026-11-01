@@ -1,0 +1,1151 @@
+Project: Standalone Minecraft Packet Auditor & Editor
+
+
+
+You are acting as a senior Java engineer, Minecraft networking specialist, software architect and technical designer.
+
+
+
+Your task is to design and eventually implement a complete, modular Minecraft Java Edition 26.2 Packet Auditor & Editor.
+
+
+
+The project is intended to be integrated into an existing custom Minecraft client. It must be developed as an independent, reusable Java module rather than as an entirely separate Minecraft client or standalone mod.
+
+
+
+1. IMPORTANT: Development workflow
+
+
+
+Do not immediately start coding.
+
+
+
+First, conduct a structured requirements-gathering and architecture-design process.
+
+
+
+I want to develop this project interactively with you.
+
+
+
+Follow this workflow:
+
+
+
+1. Read and understand the requirements already provided in this prompt.
+
+2. Identify missing information, ambiguities, technical constraints and potential conflicts.
+
+3. Ask me clarification questions one at a time.
+
+4. Explain the available options when a decision requires technical understanding.
+
+5. Recommend an option where appropriate, explaining why.
+
+6. Keep track of confirmed requirements, unresolved questions, proposed decisions and rejected ideas.
+
+7. Challenge technically unrealistic or potentially problematic requirements rather than blindly agreeing.
+
+8. Do not repeatedly ask questions that have already been answered.
+
+9. Continue until the specification is sufficiently complete.
+
+10. Present a consolidated technical specification for my approval.
+
+11. Only begin implementation after I explicitly approve that specification.
+
+
+
+Do not generate the final implementation prematurely.
+
+
+
+2. Project constraints
+
+
+
+The following requirements are mandatory.
+
+
+
+- Target Minecraft Java Edition 26.2.
+
+- Implement the module entirely in Java.
+
+- Make it modular, reusable and straightforward to integrate into an existing Java project.
+
+- Keep networking interception, packet processing, packet editing, storage and GUI components independently organised.
+
+- Do not assume a particular existing GUI framework.
+
+- Do not implement a Minecraft launcher.
+
+- Do not implement a Minecraft injector.
+
+- Do not implement a separate Minecraft client.
+
+- Do not recreate an entire module-management framework.
+
+- Do not assume access to my existing source code.
+
+
+
+I already have my own injection mechanism, GUI system, module system and configuration infrastructure.
+
+
+
+The module must expose clear integration interfaces so another coding agent, Codex, can integrate it into my existing project later.
+
+
+
+Relevant integration touchpoints in my existing project include "Settings.java" and other .java files. Codex will inspect those files during integration. You will not have access to them.
+
+
+
+Your implementation must therefore be self-contained and must not depend on inspecting or modifying my existing project.
+
+
+
+3. Networking architecture and research
+
+
+
+You are responsible for researching and selecting the appropriate packet interception architecture.
+
+
+
+Before implementation:
+
+
+
+- Investigate the actual Minecraft 26.2 networking implementation.
+
+- Verify the correct packet classes, connection architecture, packet processing pathways and serialization mechanisms.
+
+- Verify relevant mappings, dependencies and APIs.
+
+- Avoid outdated Minecraft networking examples.
+
+- Do not assume that older Minecraft versions use identical classes or networking behaviour.
+
+- Explain the proposed interception architecture before implementing it.
+
+
+
+Prefer native Minecraft packet classes and serialization mechanisms wherever practical.
+
+
+
+The networking layer must be independent of the GUI.
+
+
+
+Avoid unnecessary reflection, invasive hooks, duplicated networking infrastructure and expensive operations on networking threads.
+
+
+
+If an architectural decision depends on an unknown Minecraft implementation detail, research it rather than guessing.
+
+
+
+4. Packet auditing
+
+
+
+The auditor should support the following capabilities.
+
+
+
+Live packet inspection
+
+
+
+- Capture incoming and outgoing packets.
+
+- Display packets in real time.
+
+- Identify packet direction:
+
+  - CLIENT → SERVER
+
+  - SERVER → CLIENT
+
+- Display packet names.
+
+- Display packet IDs where available.
+
+- Display timestamps.
+
+- Display packet sizes.
+
+- Display protocol state.
+
+- Display decoded packet contents in a structured format.
+
+- Support searchable packet history.
+
+- Support filtering by packet name, ID, direction, size and other available properties.
+
+
+
+Packet statistics
+
+
+
+- Total packets sent and received.
+
+- Incoming and outgoing bandwidth.
+
+- Packet frequency.
+
+- Data volume.
+
+- Live traffic statistics.
+
+- Chronological packet timeline.
+
+- Timestamps and event markers.
+
+
+
+Connection monitoring
+
+
+
+Monitor relevant connection events and expose them through the dashboard.
+
+
+
+The exact events and metadata should be determined during the technical design phase.
+
+
+
+5. Packet editing
+
+
+
+Support both structured packet inspection/editing and raw packet inspection/editing.
+
+
+
+Structured editor
+
+
+
+- Display decoded packet fields.
+
+- Allow supported fields to be modified.
+
+- Validate modified values.
+
+- Show original and modified values.
+
+- Provide before-and-after comparisons.
+
+- Clearly identify unsupported or non-editable fields.
+
+
+
+Raw packet viewer/editor
+
+
+
+- Provide a readable representation of the serialized packet data.
+
+- Allow supported raw-level modifications.
+
+- Validate modified data before use.
+
+- Clearly distinguish serialized packet data from the decoded Minecraft packet object.
+
+
+
+Do not assume that changing displayed raw bytes automatically updates the decoded packet object.
+
+
+
+Implement a technically correct conversion, validation and serialization process.
+
+
+
+Editing history
+
+
+
+- Track packet modifications.
+
+- Record original and modified values.
+
+- Include timestamps.
+
+- Identify the applicable editing rule.
+
+- Allow users to inspect previous modifications.
+
+
+
+Packet templates
+
+
+
+Support reusable packet templates where technically appropriate.
+
+
+
+Editing rules
+
+
+
+Allow users to create automatic editing rules for future matching packets.
+
+
+
+Rules should support:
+
+
+
+- Packet type matching.
+
+- Direction matching.
+
+- Field conditions.
+
+- Replacement values.
+
+- Enable/disable controls.
+
+- Rule priorities.
+
+- Preview before activation.
+
+- Modification history.
+
+
+
+6. Packet selection and interaction
+
+
+
+Normal packet traffic must continue uninterrupted by default.
+
+
+
+Live packet capture should initially be passive.
+
+
+
+When I click a packet in the live packet list, display an action menu that lets me choose what to do.
+
+
+
+Possible actions include:
+
+
+
+- Inspect packet.
+
+- Edit this packet.
+
+- Change all matching future packets.
+
+- Intercept matching future packets.
+
+- Delay matching future packets.
+
+- Discard matching future packets, subject to protection rules.
+
+
+
+Important technical distinction:
+
+
+
+A packet that has already been transmitted or processed cannot be retroactively intercepted or held.
+
+
+
+Actions involving interception, editing, delay or discard must therefore operate on the next eligible packet or subsequent matching packets.
+
+
+
+Clearly communicate this distinction in the UI.
+
+
+
+7. Packet matching system
+
+
+
+Provide three configurable matching modes.
+
+
+
+Basic
+
+
+
+- Match by packet type.
+
+
+
+Intermediate
+
+
+
+- Match by packet type and field conditions.
+
+
+
+Advanced
+
+
+
+- Full rule builder.
+
+- AND/OR conditions.
+
+- Direction.
+
+- Protocol state.
+
+- Packet size.
+
+- Rule priorities.
+
+- Additional supported properties.
+
+
+
+Additional requirements:
+
+
+
+- Switching matching modes must not delete existing rules.
+
+- Rules that cannot operate under the selected mode should be marked inactive.
+
+- Allow individual rules to be enabled or disabled.
+
+- Provide a preview before activation.
+
+
+
+8. Packet interception and queue management
+
+
+
+Support controlled packet interception and holding.
+
+
+
+The queue manager should provide:
+
+
+
+- FIFO queueing by default.
+
+- Individual packet selection.
+
+- Single-packet release.
+
+- Individual editing before release where supported.
+
+- Individual discard where permitted.
+
+- Batch operations.
+
+- Queue size limits.
+
+- Configurable overflow behaviour.
+
+- Queue status indicators.
+
+- Timeout protection.
+
+- Ordering preservation by default.
+
+
+
+The system must distinguish between packets waiting in the interception queue and packets already processed by Minecraft.
+
+
+
+Avoid deadlocks and networking-thread starvation.
+
+
+
+9. Packet delay system
+
+
+
+Implement an advanced configurable delay system.
+
+
+
+Include:
+
+
+
+- Fixed delays.
+
+- Randomised delays with configurable minimum and maximum values.
+
+- Multiple saved delay profiles.
+
+- Separate incoming and outgoing settings.
+
+- Packet-type-specific delay rules.
+
+- Enable/disable controls.
+
+- Live delay statistics.
+
+- Integration with the packet queue.
+
+- Maximum delay limits.
+
+- Timeout protection.
+
+
+
+Do not automatically introduce network simulation features such as bandwidth throttling or simulated packet loss unless they are proposed and approved during clarification.
+
+
+
+10. Safety and packet protection
+
+
+
+Essential connection-integrity packets must be protected by default.
+
+
+
+In particular, PONG and KeepAlive packets must not be accidentally modified or disrupted.
+
+
+
+Implement an Advanced Mode switch.
+
+
+
+The selected safety policy is:
+
+
+
+- Normal Mode protects essential connection-integrity packets.
+
+- Advanced Mode unlocks other supported packet modifications.
+
+- Essential connection-integrity packets remain protected even in Advanced Mode.
+
+
+
+Protection must apply consistently across manual editing, automatic rules, delay rules, interception and discard operations.
+
+
+
+Do not rely solely on hiding controls in the GUI. Enforce protection in the underlying processing layer.
+
+
+
+Display clear explanations when an operation is blocked by a protection rule.
+
+
+
+11. Anomaly detection
+
+
+
+Implement configurable anomaly detection.
+
+
+
+Include two complementary systems.
+
+
+
+Built-in detection
+
+
+
+Detect unusual behaviour such as:
+
+
+
+- Unusually large packets.
+
+- Unexpected packet frequency.
+
+- Traffic spikes.
+
+- Other technically meaningful packet anomalies.
+
+
+
+Custom detection
+
+
+
+Allow users to create custom detection rules and thresholds.
+
+
+
+Additional requirements:
+
+
+
+- Adjustable sensitivity.
+
+- Enable/disable individual detectors.
+
+- Severity classification.
+
+- Anomaly history.
+
+- Visual indicators in the packet list.
+
+- Configurable thresholds.
+
+
+
+Anomaly detection is diagnostic by default.
+
+
+
+It must not automatically modify, block or discard packets.
+
+
+
+12. Packet history and retention
+
+
+
+Provide configurable packet retention.
+
+
+
+Support:
+
+
+
+- Session-only history.
+
+- Automatic disk saving.
+
+- Manual export.
+
+- Configurable maximum history.
+
+- Automatic cleanup.
+
+- Searchable retained history.
+
+- JSON export.
+
+- CSV export.
+
+- RAM and disk usage monitoring.
+
+
+
+Avoid an unnecessarily complicated recording and replay system unless we explicitly agree to add it.
+
+
+
+13. Packet decoding
+
+
+
+Use a hybrid decoder architecture.
+
+
+
+Prioritise native Minecraft 26.2 packet classes and serialization mechanisms.
+
+
+
+However, maintain an independent inspection and editing layer.
+
+
+
+The decoder should:
+
+
+
+- Decode supported packet types.
+
+- Expose structured packet information.
+
+- Support the editor.
+
+- Preserve correct packet serialization.
+
+- Identify unsupported packets.
+
+- Provide safe fallbacks for unknown packet types.
+
+- Clearly identify packets that cannot be edited.
+
+
+
+Unknown packets must not be silently corrupted or modified.
+
+
+
+14. GUI architecture
+
+
+
+I want both a compact floating overlay and a full dashboard.
+
+
+
+They must share the same backend, packet data, configuration and processing state.
+
+
+
+Do not create separate packet-processing instances for the two interfaces.
+
+
+
+Compact overlay
+
+
+
+Designed for quick monitoring.
+
+
+
+It should provide useful live packet information without occupying too much screen space.
+
+
+
+Full dashboard
+
+
+
+Use a hybrid layout:
+
+
+
+- Persistent packet list.
+
+- Tab-based packet inspector/editor/details.
+
+- Resizable panels.
+
+- Live updates.
+
+- Search and filtering.
+
+- Traffic statistics.
+
+- Queue management.
+
+- Anomaly notifications.
+
+- Configuration access.
+
+
+
+GUI appearance
+
+
+
+Support:
+
+
+
+- Dark theme.
+
+- Light theme.
+
+- Cyberpunk theme.
+
+- Custom colours.
+
+- Customisable colour settings.
+
+- Smooth and responsive interactions.
+
+- Clear visual hierarchy.
+
+- Configurable opacity where appropriate.
+
+
+
+The GUI must be independently implemented and must not depend on my existing GUI framework.
+
+
+
+However, create reusable components and separate the GUI rendering/interaction layer from the backend and application state.
+
+
+
+Codex will later adapt the renderer to my existing GUI.
+
+
+
+Minecraft integration
+
+
+
+The interface should be toggleable from my existing module system.
+
+
+
+Prefer an overlay that can operate over Minecraft and remain usable while the inventory and other in Minecraft GUI is open.
+
+
+
+Do not implement a separate window or launcher unless we decide that is technically necessary.
+
+
+
+Investigate the actual rendering and input architecture before deciding how this should work.
+
+
+
+15. Performance and resource management
+
+
+
+Use adaptive performance management.
+
+
+
+The module should adjust resource usage according to system load.
+
+
+
+Include:
+
+
+
+- Adaptive capture buffers.
+
+- Configurable packet history limits.
+
+- Adjustable GUI refresh rates.
+
+- Background processing for expensive analysis.
+
+- Asynchronous disk operations.
+
+- Memory usage monitoring.
+
+- CPU overhead monitoring.
+
+- Queue pressure monitoring.
+
+- Automatic throttling of nonessential analysis.
+
+- Avoidance of unnecessary packet decoding.
+
+
+
+Never block Minecraft's main or networking threads with GUI rendering, disk operations or expensive analysis.
+
+
+
+Do not silently drop packets that are being held for manual inspection.
+
+
+
+When resource limits are reached, provide warnings and use clearly documented overflow behaviour.
+
+
+
+16. Configuration and persistence
+
+
+
+Use hybrid storage.
+
+
+
+JSON
+
+
+
+Use JSON for:
+
+
+
+- General settings.
+
+- Advanced Mode preferences.
+
+- Themes and colours.
+
+- Packet editing rules.
+
+- Delay profiles.
+
+- Packet templates.
+
+- Anomaly detection configurations.
+
+
+
+SQLite or suitable structured storage
+
+
+
+Use this for larger datasets such as:
+
+
+
+- Packet histories.
+
+- Recorded audit sessions.
+
+- Modification history.
+
+- Historical statistics.
+
+
+
+Include:
+
+
+
+- Configuration validation.
+
+- Versioned migrations.
+
+- Backup support.
+
+- Corruption recovery.
+
+- Clear storage interfaces.
+
+
+
+Keep storage independent from the GUI.
+
+
+
+17. Architecture and code quality
+
+
+
+The implementation should be modular, maintainable and easy to integrate.
+
+
+
+Separate responsibilities into appropriate components, such as:
+
+
+
+- Networking interception.
+
+- Packet decoding.
+
+- Packet metadata.
+
+- Packet editing.
+
+- Packet validation.
+
+- Packet matching.
+
+- Editing rules.
+
+- Interception queue.
+
+- Delay management.
+
+- Anomaly detection.
+
+- Statistics.
+
+- History management.
+
+- Persistence.
+
+- GUI.
+
+- Integration interfaces.
+
+
+
+These are conceptual responsibilities, not necessarily mandatory class names.
+
+
+
+Avoid creating unnecessarily complicated abstractions.
+
+
+
+Use clear Java interfaces and well-defined public APIs.
+
+
+
+The module should not assume ownership of Minecraft's entire networking lifecycle.
+
+
+
+Provide integration points for an existing runtime and module system.
+
+
+
+18. Testing and reliability
+
+
+
+Plan a proper testing strategy.
+
+
+
+Include:
+
+
+
+- Unit tests for packet decoding and editing.
+
+- Packet validation tests.
+
+- Rule-matching tests.
+
+- Queue behaviour tests.
+
+- Delay-system tests.
+
+- Storage tests.
+
+- Serialization tests.
+
+- Performance tests.
+
+- Minecraft 26.2 integration tests.
+
+
+
+Test normal packet forwarding carefully.
+
+
+
+Ensure that unsupported packet types and invalid edits fail safely.
+
+
+
+Document any behaviour that cannot be fully tested without a running Minecraft client.
+
+
+
+The module is intended for controlled debugging and testing of my own client and authorised test environments.
+
+
+
+19. Deliverables
+
+
+
+When implementation is eventually approved, produce:
+
+
+
+1. Complete Java source code.
+
+2. A clear project structure.
+
+3. Build configuration and dependency information.
+
+4. A standalone GUI implementation.
+
+5. Reusable GUI components.
+
+6. Backend integration interfaces.
+
+7. Configuration examples.
+
+8. Storage implementation.
+
+9. Tests.
+
+10. Integration documentation.
+
+11. API documentation.
+
+12. Instructions for Codex to integrate the module into my existing client.
+
+
+
+The integration documentation is particularly important.
+
+
+
+Codex should be able to understand how to:
+
+
+
+- Initialise the module.
+
+- Connect it to the existing Minecraft runtime.
+
+- Register its module toggle.
+
+- Connect existing settings.
+
+- Adapt the GUI renderer.
+
+- Connect existing GUI input handling.
+
+- Configure storage paths.
+
+- Connect the networking interception layer.
+
+
+
+Do not require Codex to rewrite the entire module.
+
+
+
+20. Your first task
+
+
+
+Begin by reviewing this specification.
+
+
+
+Do not start implementation yet.
+
+
+
+First, identify the most important unresolved architectural and functional decisions.
+
+
+
+Then ask me the first clarification question.
+
+
+
+Remember:
+
+
+
+- Ask only ONE question at a time.
+
+- Explain technical choices clearly.
+
+- Recommend an option where appropriate.
+
+- Track confirmed and unresolved decisions.
+
+- Do not ask me for my existing source code.
+
+- Do not assume that an idea is technically possible without verifying it.
+
+- Do not start implementation until I approve the consolidated specification.
+
+
+
+I want a technically sound, genuinely usable packet auditing and editing module, not a rushed collection of features.
+
+
+
+Important: Use AskQuestions Tool

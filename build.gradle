@@ -1,0 +1,141 @@
+// ============================================================================
+// Minecraft Java 26.2 Packet Auditor & Editor
+// ----------------------------------------------------------------------------
+// Build layout:
+//   * src/main  -> CORE engine. Pure Java. NO Minecraft, NO Netty references.
+//                  Compiles and tests standalone (this is what CI builds).
+//   * src/mc    -> OPTIONAL Minecraft/Netty adapter (Netty handler seam, the
+//                  StreamCodec bridge, the native MC reference renderer).
+//                  Only compiled when you pass -PmcJar=/path/to/minecraft-26.2.jar
+//                  (your client already has these on the classpath at runtime).
+//   * src/test  -> JUnit 5 tests for the core (lightweight mocks of the MC
+//                  packet adapters; heavy headless MC simulation disabled).
+// ============================================================================
+
+plugins {
+    id 'java-library'
+}
+
+group = 'com.packetauditor'
+version = '0.1.0'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+    withSourcesJar()
+}
+
+repositories {
+    mavenCentral()
+}
+
+// ----------------------------------------------------------------------------
+// Dependency versions
+// ----------------------------------------------------------------------------
+ext {
+    gsonVersion    = '2.11.0'
+    sqliteVersion  = '3.46.1.3'
+    nettyVersion   = '4.1.115.Final'   // host provides the real one at runtime
+    junitVersion   = '5.11.3'
+}
+
+// ----------------------------------------------------------------------------
+// Optional Minecraft adapter source set (src/mc)
+// ----------------------------------------------------------------------------
+sourceSets {
+    mc {
+        java {
+            srcDir 'src/mc/java'
+        }
+        // The adapter can see the core classes.
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+    }
+}
+
+configurations {
+    mcCompileOnly
+    mcImplementation.extendsFrom implementation
+}
+
+dependencies {
+    // --- Core runtime libraries ---
+    // NOTE for integration: Minecraft already bundles Gson, so in your client
+    // build you may switch 'api'/'implementation' to 'compileOnly' for gson to
+    // avoid duplication. It is kept as 'implementation' here so the standalone
+    // core compiles & tests without a Minecraft classpath.
+    implementation "com.google.code.gson:gson:${gsonVersion}"
+    implementation "org.xerial:sqlite-jdbc:${sqliteVersion}"
+
+    // --- MC adapter (src/mc) compile-only deps ---
+    // Netty comes from Maven Central for compilation; your client provides it
+    // at runtime, so it is compileOnly.
+    mcCompileOnly "io.netty:netty-buffer:${nettyVersion}"
+    mcCompileOnly "io.netty:netty-transport:${nettyVersion}"
+    mcCompileOnly "io.netty:netty-codec:${nettyVersion}"
+    // The Minecraft 26.2 jar is provided on the command line:
+    //   ./gradlew compileMcJava -PmcJar=C:/path/to/minecraft-26.2.jar
+    if (project.hasProperty('mcJar')) {
+        mcCompileOnly files(project.property('mcJar'))
+    }
+
+    // --- Tests ---
+    testImplementation "org.junit.jupiter:junit-jupiter:${junitVersion}"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+}
+
+// Wire the mc source set compile classpath to its compileOnly config.
+configurations.named('mcCompileClasspath') {
+    extendsFrom configurations.mcCompileOnly
+}
+
+// ----------------------------------------------------------------------------
+// Compilation
+// ----------------------------------------------------------------------------
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.compilerArgs << '-Xlint:all' << '-Xlint:-processing'
+}
+
+// Do NOT let `build` try to compile the MC adapter unless a jar was supplied.
+tasks.named('compileMcJava') {
+    onlyIf { project.hasProperty('mcJar') }
+}
+
+// ----------------------------------------------------------------------------
+// Tests  (D11: lightweight mocks, no heavy headless MC sim, aggressive GC)
+// ----------------------------------------------------------------------------
+tasks.named('test', Test) {
+    useJUnitPlatform()
+    // D11: disable heavy headless MC client simulation during standard builds.
+    systemProperty 'packetauditor.test.headlessMc', 'false'
+    systemProperty 'packetauditor.test.mode', 'mocks'
+    // D11: aggressive, memory-frugal GC configuration for build testing.
+    maxHeapSize = '512m'
+    jvmArgs = [
+        '-XX:+UseG1GC',
+        '-XX:MaxGCPauseMillis=50',
+        '-XX:+UseStringDeduplication',
+        '-XX:MaxMetaspaceSize=256m'
+    ]
+    testLogging {
+        events 'passed', 'skipped', 'failed'
+        exceptionFormat = 'full'
+    }
+}
+
+// ----------------------------------------------------------------------------
+// Optional MC adapter jar (only when -PmcJar is given)
+// ----------------------------------------------------------------------------
+tasks.register('mcJar', Jar) {
+    onlyIf { project.hasProperty('mcJar') }
+    archiveClassifier = 'mc-adapter'
+    from sourceSets.mc.output
+}
+
+// ----------------------------------------------------------------------------
+// Release obfuscation (D9) is an OPT-IN step, documented in docs/BUILD.md.
+// ProGuard config lives in proguard-rules.pro (keeps the public api package).
+// It is intentionally NOT wired into `build` so dev/test builds stay readable.
+// ----------------------------------------------------------------------------
